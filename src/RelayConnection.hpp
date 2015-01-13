@@ -1,5 +1,9 @@
+#pragma once
+
 #include <QTcpSocket>
 #include <memory>
+
+typedef uint64_t WPointer;
 
 class RelayConnection {
     std::unique_ptr<QTcpSocket> sock;
@@ -8,10 +12,11 @@ class RelayConnection {
 
     QByteArray readByteArray(uint32_t len);
     QByteArray readString();
-    uint64_t readPointer();
+    WPointer readPointer();
     QVariant readFieldOfType(QByteArray type);
 
 public:
+    QByteArray currentFrameId; // FIXME
     QVariant readReply();
 
     void writeString(const char* string);

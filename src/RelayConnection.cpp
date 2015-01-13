@@ -9,12 +9,14 @@ enum {
 void RelayConnection::writeString(const char* string) {
     stream.writeRawData(string, (int)strlen(string));
 }
+
 QByteArray RelayConnection::readByteArray(uint32_t len) {
     QByteArray ret;
     ret.resize(len);
     stream.readRawData(ret.data(), len);
     return ret;
 }
+
 QByteArray RelayConnection::readString() {
     uint32_t len;
     stream >> len;
@@ -23,12 +25,14 @@ QByteArray RelayConnection::readString() {
     }
     return readByteArray(len);
 }
-uint64_t RelayConnection::readPointer() {
+
+WPointer RelayConnection::readPointer() {
     uint8_t len;
     stream >> len;
     QByteArray temp = readByteArray(len);
     return temp.toUInt(nullptr, 16);
 }
+
 QVariant RelayConnection::readFieldOfType(QByteArray type) {
     if (type == QByteArray("inf")) {
         QByteArray key = readString();
@@ -117,6 +121,7 @@ QVariant RelayConnection::readFieldOfType(QByteArray type) {
     qDebug() << "Unknown data of type:" << type;
     return QVariant();
 }
+
 QVariant RelayConnection::readReply() {
     qint64 posAtStart = sock->pos();
 
@@ -133,8 +138,8 @@ QVariant RelayConnection::readReply() {
 
         uint8_t compressionFlag;
         stream >> compressionFlag;
-        QString id = readString();
-        qDebug() << "Frame - compression:" << compressionFlag << "id:" << id;
+        currentFrameId = readString();
+        qDebug() << "Frame - compression:" << compressionFlag << "id:" << currentFrameId;
         remainingBytesInFrame = frameLength;
     }
 
