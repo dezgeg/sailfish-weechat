@@ -44,7 +44,6 @@ Rectangle {
 
                     text: '12:34:56'
                     font.family: 'monospace'
-                    color: 'white'
                 }
 
                 Text {
@@ -52,8 +51,9 @@ Rectangle {
                     anchors.leftMargin: 5
                     anchors.left: timestampLabel.right
 
+                    textFormat: Text.RichText
+
                     text: model.modelData.prefix
-                    color: 'white'
                 }
 
                 Rectangle {
@@ -71,13 +71,13 @@ Rectangle {
                     anchors.leftMargin: 5
 
                     wrapMode: Text.Wrap
+                    textFormat: Text.RichText
 
                     text: model.modelData.message
-                    color: 'white'
                 }
             }
 
-            model: weechat.buffers[3].lines
+            model: weechat.buffers[2].lines
         }
     }
 }

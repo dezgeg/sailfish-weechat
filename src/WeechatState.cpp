@@ -1,4 +1,5 @@
 #include "WeechatState.hpp"
+#include "TerminalColors.hpp"
 
 #define PRINT_FIELD(field) #field ": " << that.field << ", "
 
@@ -50,8 +51,8 @@ void WeechatState::process() {
 
             WeechatLine* line = new WeechatLine(buffers[bufferId]);
             line->timestamp = QDateTime::fromTime_t(hash["date"].toUInt());
-            line->message = hash["message"].toByteArray();
-            line->prefix = hash["prefix"].toByteArray();
+            line->message = convertColorCodes(hash["message"].toByteArray());
+            line->prefix = convertColorCodes(hash["prefix"].toByteArray());
             line->displayed = hash["displayed"].toBool();
 
             buffers[bufferId]->lines.push_back(line);

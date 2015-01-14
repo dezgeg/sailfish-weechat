@@ -31,6 +31,8 @@ int main(int argc, char** argv) {
     for (int i = 0; i < 3; i++) {
         weechat.process();
     }
+
+#if 0
     qDebug() << "Buffers:";
     for (const auto& buf : weechat.buffers) {
         qDebug() << buf;
@@ -42,6 +44,7 @@ int main(int argc, char** argv) {
         }
         qDebug() << "";
     }
+#endif
 
     QQuickView view;
     view.rootContext()->setContextProperty("weechat", &weechat);
