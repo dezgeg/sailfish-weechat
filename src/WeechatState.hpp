@@ -1,12 +1,14 @@
 #pragma once
 
+#include <algorithm>
 #include <QDebug>
 #include <QDateTime>
 #include <QObject>
+#include <QQmlListProperty>
 #include "RelayConnection.hpp"
 
 #define PRINT_FIELD(field) #field ": " << that.field << ", "
-#define PROP(type, field) type field; Q_PROPERTY(type field MEMBER field)
+#define PROP(type, field) type field; Q_PROPERTY(type field MEMBER field CONSTANT)
 
 class WeechatLine : public QObject {
 Q_OBJECT
@@ -54,8 +56,20 @@ public:
     PROP(QByteArray, shortName);
     PROP(QByteArray, title);
     PROP(QVariantHash, localVariables);
-    PROP(QList<WeechatLine*>, lines);
-    PROP(QList<WeechatNick*>, nicks);
+
+    QList<WeechatLine*> lines;
+    QList<WeechatNick*> nicks;
+
+    Q_PROPERTY(QQmlListProperty<WeechatLine> lines READ _getLines CONSTANT);
+    Q_PROPERTY(QQmlListProperty<WeechatNick> nicks READ _getNicks CONSTANT);
+
+    QQmlListProperty<WeechatLine> _getLines() {
+        return QQmlListProperty<WeechatLine>(this, lines);
+    }
+
+    QQmlListProperty<WeechatNick> _getNicks() {
+        return QQmlListProperty<WeechatNick>(this, nicks);
+    }
 };
 
 inline QDebug operator<<(QDebug dbg, const WeechatBuffer& that) {
@@ -67,10 +81,20 @@ inline QDebug operator<<(QDebug dbg, const WeechatBuffer& that) {
     return dbg.space();
 }
 
-class WeechatState {
+class WeechatState : public QObject {
+Q_OBJECT
 public:
+    explicit WeechatState(QObject* parent = nullptr) : QObject(parent) { }
+
     RelayConnection relay;
     QHash<WPointer, WeechatBuffer*> buffers;
+    QList<WeechatBuffer*> buffersInOrder;
+
+    Q_PROPERTY(QQmlListProperty<WeechatBuffer> buffers READ _getBuffersInOrder CONSTANT);
+
+    QQmlListProperty<WeechatBuffer> _getBuffersInOrder() {
+        return QQmlListProperty<WeechatBuffer>(this, buffersInOrder);
+    }
 
     void process() {
         QVariant reply = relay.readReply();
@@ -86,6 +110,7 @@ public:
                 buffer->localVariables = hash["local_variables"].toHash();
 
                 buffers[buffer->id] = buffer;
+                buffersInOrder.push_back(buffer);
             }
         } else if (relay.currentFrameId == "listlines") {
             for (QVariant variant : reply.toList()) {
@@ -99,6 +124,9 @@ public:
                 line->displayed = hash["displayed"].toBool();
 
                 buffers[bufferId]->lines.push_back(line);
+            }
+            for (WeechatBuffer* buf : buffers) {
+                std::reverse(std::begin(buf->lines), std::end(buf->lines));
             }
         } else if (relay.currentFrameId == "nicklist") {
             for (QVariant variant : reply.toList()) {

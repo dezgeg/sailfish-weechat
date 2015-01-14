@@ -17,9 +17,9 @@ Rectangle {
             anchors.fill: parent
 
             delegate: Text {
-                text: 'foo'
+                text: model.modelData.shortName == '' ? model.modelData.fullName : model.modelData.shortName
             }
-            model: ['foo', 'bar']
+            model: weechat.buffers
         }
     }
 
@@ -52,7 +52,7 @@ Rectangle {
                     anchors.leftMargin: 5
                     anchors.left: timestampLabel.right
 
-                    text: '@bhthompson_cloud'
+                    text: model.modelData.prefix
                     color: 'white'
                 }
 
@@ -72,11 +72,12 @@ Rectangle {
 
                     wrapMode: Text.Wrap
 
-                    text: 'ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ'
+                    text: model.modelData.message
                     color: 'white'
                 }
             }
-            model: ['foo', 'bar']
+
+            model: weechat.buffers[3].lines
         }
     }
 }
