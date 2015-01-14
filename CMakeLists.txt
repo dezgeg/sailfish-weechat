@@ -8,14 +8,10 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 set(CMAKE_AUTOMOC ON)
-find_package(Qt5Widgets REQUIRED)
-find_package(Qt5Multimedia REQUIRED)
-find_package(Qt5OpenGL REQUIRED)
 find_package(Qt5Qml REQUIRED)
-find_package(Qt5Xml REQUIRED)
-find_package(Qt5XmlPatterns REQUIRED)
+find_package(Qt5Quick REQUIRED)
 
 file(GLOB_RECURSE srcs src/**.cpp src/**.hpp)
 
 add_executable(foo ${srcs})
-qt5_use_modules(foo Widgets Multimedia OpenGL Qml Xml XmlPatterns)
+qt5_use_modules(foo Qml Quick)
