@@ -2,19 +2,24 @@
 
 #include <QDebug>
 #include <QDateTime>
+#include <QObject>
 #include "RelayConnection.hpp"
 
 #define PRINT_FIELD(field) #field ": " << that.field << ", "
+#define PROP(type, field) type field; Q_PROPERTY(type field MEMBER field)
 
-class WeechatLine {
+class WeechatLine : public QObject {
+Q_OBJECT
 public:
-    QDateTime timestamp;
-    QByteArray prefix;
-    QByteArray message;
-    bool displayed;
+    explicit WeechatLine(QObject* parent = nullptr) : QObject(parent) { }
+
+    PROP(QDateTime, timestamp);
+    PROP(QByteArray, prefix);
+    PROP(QByteArray, message);
+    PROP(bool, displayed);
 };
 
-QDebug operator<<(QDebug dbg, const WeechatLine& that) {
+inline QDebug operator<<(QDebug dbg, const WeechatLine& that) {
     dbg.nospace() << "Line{ " <<
             "timestamp: " << that.timestamp.toString("hh:mm:ss") << ", " <<
             PRINT_FIELD(displayed) <<
@@ -23,31 +28,37 @@ QDebug operator<<(QDebug dbg, const WeechatLine& that) {
     return dbg.space();
 }
 
-class WeechatNick {
+class WeechatNick : public QObject {
+Q_OBJECT
 public:
-    QByteArray prefix;
-    QByteArray name;
+    explicit WeechatNick(QObject* parent = nullptr) : QObject(parent) { }
+
+    PROP(QByteArray, prefix);
+    PROP(QByteArray, name);
 };
 
-QDebug operator<<(QDebug dbg, const WeechatNick& that) {
+inline QDebug operator<<(QDebug dbg, const WeechatNick& that) {
     dbg.nospace() << "Nick{ " <<
             PRINT_FIELD(prefix) <<
             PRINT_FIELD(name) << "}";
     return dbg.space();
 }
 
-class WeechatBuffer {
+class WeechatBuffer : public QObject {
+Q_OBJECT
 public:
-    WPointer id;
-    QByteArray fullName;
-    QByteArray shortName;
-    QByteArray title;
-    QVariantHash localVariables;
-    QList<WeechatLine> lines;
-    QList<WeechatNick> nicks;
+    explicit WeechatBuffer(QObject* parent = nullptr) : QObject(parent) { }
+
+    PROP(WPointer, id);
+    PROP(QByteArray, fullName);
+    PROP(QByteArray, shortName);
+    PROP(QByteArray, title);
+    PROP(QVariantHash, localVariables);
+    PROP(QList<WeechatLine*>, lines);
+    PROP(QList<WeechatNick*>, nicks);
 };
 
-QDebug operator<<(QDebug dbg, const WeechatBuffer& that) {
+inline QDebug operator<<(QDebug dbg, const WeechatBuffer& that) {
     dbg.nospace() << "Buffer<" << that.id << ">{ " <<
             PRINT_FIELD(fullName) <<
             PRINT_FIELD(shortName) <<
@@ -59,7 +70,7 @@ QDebug operator<<(QDebug dbg, const WeechatBuffer& that) {
 class WeechatState {
 public:
     RelayConnection relay;
-    QHash<WPointer, WeechatBuffer> buffers;
+    QHash<WPointer, WeechatBuffer*> buffers;
 
     void process() {
         QVariant reply = relay.readReply();
@@ -67,27 +78,27 @@ public:
             for (QVariant variant : reply.toList()) {
                 QHash<QString, QVariant> hash = variant.toHash();
 
-                WeechatBuffer buffer;
-                buffer.id = hash["__path"].toList().at(0).toUInt();
-                buffer.fullName = hash["full_name"].toByteArray();
-                buffer.shortName = hash["short_name"].toByteArray();
-                buffer.title = hash["title"].toByteArray();
-                buffer.localVariables = hash["local_variables"].toHash();
+                WeechatBuffer* buffer = new WeechatBuffer();
+                buffer->id = hash["__path"].toList().at(0).toUInt();
+                buffer->fullName = hash["full_name"].toByteArray();
+                buffer->shortName = hash["short_name"].toByteArray();
+                buffer->title = hash["title"].toByteArray();
+                buffer->localVariables = hash["local_variables"].toHash();
 
-                buffers[buffer.id] = std::move(buffer);
+                buffers[buffer->id] = buffer;
             }
         } else if (relay.currentFrameId == "listlines") {
             for (QVariant variant : reply.toList()) {
                 QHash<QString, QVariant> hash = variant.toHash();
                 WPointer bufferId = hash["__path"].toList().at(0).toUInt();
 
-                WeechatLine line;
-                line.timestamp = QDateTime::fromTime_t(hash["date"].toUInt());
-                line.message = hash["message"].toByteArray();
-                line.prefix = hash["prefix"].toByteArray();
-                line.displayed = hash["displayed"].toBool();
+                WeechatLine* line = new WeechatLine(buffers[bufferId]);
+                line->timestamp = QDateTime::fromTime_t(hash["date"].toUInt());
+                line->message = hash["message"].toByteArray();
+                line->prefix = hash["prefix"].toByteArray();
+                line->displayed = hash["displayed"].toBool();
 
-                buffers[bufferId].lines.push_back(line);
+                buffers[bufferId]->lines.push_back(line);
             }
         } else if (relay.currentFrameId == "nicklist") {
             for (QVariant variant : reply.toList()) {
@@ -99,11 +110,11 @@ public:
 
                 WPointer bufferId = hash["__path"].toList().at(0).toUInt();
 
-                WeechatNick nick;
-                nick.name = hash["name"].toByteArray();
-                nick.prefix = hash["prefix"].toByteArray();
+                WeechatNick* nick = new WeechatNick(buffers[bufferId]);
+                nick->name = hash["name"].toByteArray();
+                nick->prefix = hash["prefix"].toByteArray();
 
-                buffers[bufferId].nicks.push_back(nick);
+                buffers[bufferId]->nicks.push_back(nick);
             }
         }
     }

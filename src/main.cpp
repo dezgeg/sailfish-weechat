@@ -32,11 +32,11 @@ int main(int argc, char** argv) {
     qDebug() << "Buffers:";
     for (const auto& buf : weechat.buffers) {
         qDebug() << buf;
-        for (const auto& nick : buf.nicks) {
-            qDebug() << "   " << nick;
+        for (auto nick : buf->nicks) {
+            qDebug() << "   " << *nick;
         }
-        for (const auto& line : buf.lines) {
-            qDebug() << "   " << line;
+        for (auto line : buf->lines) {
+            qDebug() << "   " << *line;
         }
         qDebug() << "";
     }
