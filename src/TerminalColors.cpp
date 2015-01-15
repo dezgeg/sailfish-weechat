@@ -160,20 +160,21 @@ QByteArray convertColorCodes(const QByteArray& str) {
 QByteArray convertUrls(QByteArray bytes) {
     QString str = bytes;
     // https://github.com/OlliV/thumbterm/commit/074e83f775c79ea13bab501717c9f43a95708b07 with slight modifications
-    static QRegularExpression re(
+    static QRegularExpression re("("
             "(" // brackets covering match for protocol (optional) and domain
-                    "(https?:(?:\\/\\/)?)" // match protocol, allow in format http:// or mailto:
-                    "(?:[\\-;:&=\\+\\$,\\w]+@)?" // allow something@ for email addresses
-                    "[A-Za-z0-9\\.\\-]+" // anything looking at all like a domain, non-unicode domains
-                    "|" // or instead of above
-                    "(?:www\\.)" // starting with www.
-                    "[A-Za-z0-9\\.\\-]+"   // anything looking at all like a domain
-                    ")"
-                    "(" // brackets covering match for path, query string and anchor
-                    "(?:\\/[\\+~%\\/\\.\\w\\-]*)" // allow optional /path
-                    "?\\?""?(?:[\\-\\+=&;%@\\.\\w]*)" // allow optional query string starting with ?
-                    "#?(?:[\\.\\!\\/\\\\\\w]*)" // allow optional anchor #anchor
-                    ")?" // make URL suffix optional
+            "(https?:(?:\\/\\/)?)" // match protocol, allow in format http:// or mailto:
+            "(?:[\\-;:&=\\+\\$,\\w]+@)?" // allow something@ for email addresses
+            "[A-Za-z0-9\\.\\-]+" // anything looking at all like a domain, non-unicode domains
+            "|" // or instead of above
+            "(?:www\\.)" // starting with www.
+            "[A-Za-z0-9\\.\\-]+"   // anything looking at all like a domain
+            ")"
+            "(" // brackets covering match for path, query string and anchor
+            "(?:\\/[\\+~%\\/\\.\\w\\-]*)" // allow optional /path
+            "?\\?""?(?:[\\-\\+=&;%@\\.\\w]*)" // allow optional query string starting with ?
+            "#?(?:[\\.\\!\\/\\\\\\w]*)" // allow optional anchor #anchor
+            ")?" // make URL suffix optional
+            ")"
     );
 
     return str.replace(re, "<a href=\"\\1\">\\1</a>").toUtf8();
