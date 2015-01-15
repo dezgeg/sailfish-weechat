@@ -11,13 +11,32 @@ Rectangle {
         anchors.top: parent.top
         anchors.bottom: parent.bottom
         width: 100
-        color: palette.window
+        color: 'darkgray'
 
         ListView {
+            id: channelListView
             anchors.fill: parent
 
-            delegate: Text {
-                text: model.modelData.shortName == '' ? model.modelData.fullName : model.modelData.shortName
+            delegate: Rectangle {
+                id: channelContainer
+                height: bufferName.height
+                width: parent.width
+
+                color: ListView.isCurrentItem ? 'white' : channelListContainer.color
+                property color textColor: 'black'
+
+                Text {
+                    id: bufferName
+                    text: model.modelData.shortName == '' ? model.modelData.fullName : model.modelData.shortName
+                    color: channelContainer.textColor
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        channelListView.currentIndex = index
+                    }
+                }
             }
             model: weechat.buffers
         }
@@ -34,6 +53,8 @@ Rectangle {
             anchors.fill: parent
             anchors.leftMargin: 3
 
+            Component.onCompleted: positionViewAtEnd()
+
             delegate: Item {
                 height: messageLabel.height
                 anchors.left: parent.left
@@ -44,6 +65,7 @@ Rectangle {
 
                     text: '12:34:56'
                     font.family: 'monospace'
+                    color: 'white'
                 }
 
                 Text {
@@ -77,7 +99,7 @@ Rectangle {
                 }
             }
 
-            model: weechat.buffers[2].lines
+            model: weechat.buffers[channelListView.currentIndex].lines
         }
     }
 }
