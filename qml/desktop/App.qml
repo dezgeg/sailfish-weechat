@@ -96,7 +96,7 @@ Rectangle {
                     Text {
                         id: timestampLabel
 
-                        text: '12:34:56'
+                        text: model.modelData.formatTimestamp()
                         font.family: 'monospace'
                         color: 'white'
                     }

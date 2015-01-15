@@ -5,7 +5,7 @@
 
 QDebug operator<<(QDebug dbg, const WeechatLine& that) {
     dbg.nospace() << "Line{ " <<
-            "timestamp: " << that.timestamp.toString("hh:mm:ss") << ", " <<
+            "timestamp: " << that.formatTimestamp() << ", " <<
             PRINT_FIELD(displayed) <<
             PRINT_FIELD(prefix) <<
             PRINT_FIELD(message) << "}";

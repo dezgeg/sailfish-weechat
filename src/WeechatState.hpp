@@ -18,6 +18,10 @@ public:
     PROP(QByteArray, prefix);
     PROP(QByteArray, message);
     PROP(bool, displayed);
+
+    Q_INVOKABLE QString formatTimestamp() const {
+        return timestamp.toString("hh:mm:ss");
+    }
 };
 QDebug operator<<(QDebug dbg, const WeechatLine& that);
 
