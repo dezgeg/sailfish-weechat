@@ -159,14 +159,14 @@ QByteArray convertColorCodes(const QByteArray& str) {
 // XXX: not in this file
 QByteArray convertUrls(QByteArray bytes) {
     QString str = bytes;
-    // https://github.com/OlliV/thumbterm/commit/074e83f775c79ea13bab501717c9f43a95708b07
+    // https://github.com/OlliV/thumbterm/commit/074e83f775c79ea13bab501717c9f43a95708b07 with slight modifications
     static QRegularExpression re(
             "(" // brackets covering match for protocol (optional) and domain
-                    "([A-Za-z]{3,9}:(?:\\/\\/)?)" // match protocol, allow in format http:// or mailto:
+                    "(https?:(?:\\/\\/)?)" // match protocol, allow in format http:// or mailto:
                     "(?:[\\-;:&=\\+\\$,\\w]+@)?" // allow something@ for email addresses
                     "[A-Za-z0-9\\.\\-]+" // anything looking at all like a domain, non-unicode domains
                     "|" // or instead of above
-                    "(?:www\\.|[\\-;:&=\\+\\$,\\w]+@)" // starting with something@ or www.
+                    "(?:www\\.)" // starting with www.
                     "[A-Za-z0-9\\.\\-]+"   // anything looking at all like a domain
                     ")"
                     "(" // brackets covering match for path, query string and anchor
