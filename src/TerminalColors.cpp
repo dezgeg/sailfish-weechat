@@ -1,6 +1,10 @@
 #include "TerminalColors.hpp"
 #include <QString>
 #include <QDebug>
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
+#include <QRegularExpressionMatchIterator>
+#include <QUrl>
 
 #include <stdint.h>
 #include <ctype.h>
@@ -152,4 +156,31 @@ QByteArray convertColorCodes(const QByteArray& str) {
     ret.append("</span></html>");
     return ret;
 }
+// XXX: not in this file
+QByteArray convertUrls(QByteArray bytes) {
+    QString str = bytes;
+    // https://github.com/OlliV/thumbterm/commit/074e83f775c79ea13bab501717c9f43a95708b07
+    static QRegularExpression re(
+            "(" // brackets covering match for protocol (optional) and domain
+                    "([A-Za-z]{3,9}:(?:\\/\\/)?)" // match protocol, allow in format http:// or mailto:
+                    "(?:[\\-;:&=\\+\\$,\\w]+@)?" // allow something@ for email addresses
+                    "[A-Za-z0-9\\.\\-]+" // anything looking at all like a domain, non-unicode domains
+                    "|" // or instead of above
+                    "(?:www\\.|[\\-;:&=\\+\\$,\\w]+@)" // starting with something@ or www.
+                    "[A-Za-z0-9\\.\\-]+"   // anything looking at all like a domain
+                    ")"
+                    "(" // brackets covering match for path, query string and anchor
+                    "(?:\\/[\\+~%\\/\\.\\w\\-]*)" // allow optional /path
+                    "?\\?""?(?:[\\-\\+=&;%@\\.\\w]*)" // allow optional query string starting with ?
+                    "#?(?:[\\.\\!\\/\\\\\\w]*)" // allow optional anchor #anchor
+                    ")?" // make URL suffix optional
+    );
 
+    QRegularExpressionMatchIterator i = re.globalMatch(str);
+    while (i.hasNext()) {
+        QRegularExpressionMatch match = i.next();
+        str.replace(match.capturedStart(), match.capturedLength(),
+                "<a href=\"" + QUrl::toPercentEncoding(match.captured()) + "\">" + match.captured() + "</a>");
+    }
+    return str.toUtf8();
+}

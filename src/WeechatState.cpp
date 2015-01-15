@@ -51,7 +51,7 @@ void WeechatState::process() {
 
             WeechatLine* line = new WeechatLine(buffers[bufferId]);
             line->timestamp = QDateTime::fromTime_t(hash["date"].toUInt());
-            line->message = convertColorCodes(hash["message"].toByteArray());
+            line->message = convertUrls(convertColorCodes(hash["message"].toByteArray()));
             line->prefix = convertColorCodes(hash["prefix"].toByteArray());
             line->displayed = hash["displayed"].toBool();
 
