@@ -42,15 +42,34 @@ Rectangle {
             onCurrentIndexChanged: bufferContainer.changeVisibleBuffer()
         }
     }
+
+    Rectangle {
+        id: titleContainer
+
+        anchors.top: parent.top
+        anchors.left: channelListContainer.right
+        anchors.right: parent.right
+
+        height: titleText.height
+        color: 'blue'
+        z: 1
+
+        Text {
+            id: titleText
+            text: weechat.buffers[channelListView.currentIndex].title
+            color: 'white'
+        }
+    }
+
     Rectangle {
         id: bufferContainer
 
         anchors.left: channelListContainer.right
         anchors.right: parent.right
-        anchors.top: parent.top
+        anchors.top: titleContainer.bottom
         anchors.bottom: parent.bottom
 
-        color: 'red'
+        color: 'black'
 
         property variant bufferItems: []
         property variant currentVisibleBuffer: null
@@ -76,64 +95,58 @@ Rectangle {
     Component {
         id: bufferComponent
 
-        Rectangle {
+        ListView {
             anchors.fill: parent
-            color: 'black'
+            anchors.leftMargin: 3
 
             property variant bufferIndex: -1
+            Component.onCompleted: positionViewAtEnd()
 
-            ListView {
-                anchors.fill: parent
-                anchors.leftMargin: 3
+            delegate: Item {
+                height: messageLabel.height
+                anchors.left: parent.left
+                anchors.right: parent.right
 
-                Component.onCompleted: positionViewAtEnd()
+                Text {
+                    id: timestampLabel
 
-                delegate: Item {
-                    height: messageLabel.height
-                    anchors.left: parent.left
-                    anchors.right: parent.right
-
-                    Text {
-                        id: timestampLabel
-
-                        text: model.modelData.formatTimestamp()
-                        font.family: 'monospace'
-                        color: 'white'
-                    }
-
-                    Text {
-                        id: nickLabel
-                        anchors.leftMargin: 5
-                        anchors.left: timestampLabel.right
-
-                        textFormat: Text.RichText
-
-                        text: model.modelData.prefix
-                    }
-
-                    Rectangle {
-                        id: border
-                        anchors.left: nickLabel.right
-                        anchors.leftMargin: 5
-                        height: parent.height
-                        width: 1
-                    }
-
-                    Text {
-                        id: messageLabel
-                        anchors.left: border.right
-                        anchors.right: parent.right
-                        anchors.leftMargin: 5
-
-                        wrapMode: Text.Wrap
-                        textFormat: Text.RichText
-
-                        text: model.modelData.message
-                    }
+                    text: model.modelData.formatTimestamp()
+                    font.family: 'monospace'
+                    color: 'white'
                 }
 
-                model: weechat.buffers[bufferIndex].lines
+                Text {
+                    id: nickLabel
+                    anchors.leftMargin: 5
+                    anchors.left: timestampLabel.right
+
+                    textFormat: Text.RichText
+
+                    text: model.modelData.prefix
+                }
+
+                Rectangle {
+                    id: border
+                    anchors.left: nickLabel.right
+                    anchors.leftMargin: 5
+                    height: parent.height
+                    width: 1
+                }
+
+                Text {
+                    id: messageLabel
+                    anchors.left: border.right
+                    anchors.right: parent.right
+                    anchors.leftMargin: 5
+
+                    wrapMode: Text.Wrap
+                    textFormat: Text.RichText
+
+                    text: model.modelData.message
+                }
             }
+
+            model: weechat.buffers[bufferIndex].lines
         }
     }
 }
