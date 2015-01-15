@@ -5,6 +5,7 @@
 
 #include "RelayConnection.hpp"
 #include "WeechatState.hpp"
+#include "FontMeasurer.hpp"
 
 int main(int argc, char** argv) {
     QGuiApplication app(argc, argv);
@@ -12,6 +13,8 @@ int main(int argc, char** argv) {
     qmlRegisterType<WeechatNick>("SailfishWeechat", 1, 0, "WeechatNick");
     qmlRegisterType<WeechatBuffer>("SailfishWeechat", 1, 0, "WeechatBuffer");
     qmlRegisterType<WeechatState>("SailfishWeechat", 1, 0, "WeechatState");
+
+    qmlRegisterType<FontMeasurer>("SailfishWeechat", 1, 0, "FontMeasurer");
 
     WeechatState weechat;
     weechat.relay.connect("localhost", 9001);

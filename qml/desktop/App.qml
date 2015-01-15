@@ -1,17 +1,27 @@
 import QtQuick 2.0
+import SailfishWeechat 1.0
 
 Rectangle {
     id: page
 
+    property int textMargin: 3
     SystemPalette { id: palette; colorGroup: SystemPalette.Active }
+    FontMeasurer { id: fontMeasurer }
 
     Rectangle {
         id: channelListContainer
 
         anchors.top: parent.top
         anchors.bottom: parent.bottom
-        width: 100
+        width: measureBufferNames()
         color: 'darkgray'
+
+        function measureBufferNames() {
+            var arr = [];
+            for (var i = 0; i < weechat.buffers.length; i++)
+                arr.push(weechat.buffers[i].shortName);
+            return fontMeasurer.findMaxWidth(arr) + textMargin
+        }
 
         ListView {
             id: channelListView
@@ -56,6 +66,8 @@ Rectangle {
 
         Text {
             id: titleText
+            anchors.left: parent.left
+            anchors.leftMargin: textMargin
             text: weechat.buffers[channelListView.currentIndex].title
             color: 'white'
         }
@@ -97,7 +109,7 @@ Rectangle {
 
         ListView {
             anchors.fill: parent
-            anchors.leftMargin: 3
+            anchors.leftMargin: textMargin
 
             property variant bufferIndex: -1
             Component.onCompleted: positionViewAtEnd()
