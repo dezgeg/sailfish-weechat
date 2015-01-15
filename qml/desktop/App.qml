@@ -39,67 +39,101 @@ Rectangle {
                 }
             }
             model: weechat.buffers
+            onCurrentIndexChanged: bufferContainer.changeVisibleBuffer()
         }
     }
-
     Rectangle {
+        id: bufferContainer
+
         anchors.left: channelListContainer.right
-        anchors.top: parent.top;
-        anchors.right: parent.right;
-        anchors.bottom: parent.bottom;
-        color: 'black'
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
 
-        ListView {
-            anchors.fill: parent
-            anchors.leftMargin: 3
+        color: 'red'
 
-            Component.onCompleted: positionViewAtEnd()
+        property variant bufferItems: []
+        property variant currentVisibleBuffer: null
 
-            delegate: Item {
-                height: messageLabel.height
-                anchors.left: parent.left
-                anchors.right: parent.right
-
-                Text {
-                    id: timestampLabel
-
-                    text: '12:34:56'
-                    font.family: 'monospace'
-                    color: 'white'
-                }
-
-                Text {
-                    id: nickLabel
-                    anchors.leftMargin: 5
-                    anchors.left: timestampLabel.right
-
-                    textFormat: Text.RichText
-
-                    text: model.modelData.prefix
-                }
-
-                Rectangle {
-                    id: border
-                    anchors.left: nickLabel.right
-                    anchors.leftMargin: 5
-                    height: parent.height
-                    width: 1
-                }
-
-                Text {
-                    id: messageLabel
-                    anchors.left: border.right
-                    anchors.right: parent.right
-                    anchors.leftMargin: 5
-
-                    wrapMode: Text.Wrap
-                    textFormat: Text.RichText
-
-                    text: model.modelData.message
-                }
+        function changeVisibleBuffer() {
+            var i = channelListView.currentIndex
+            if (i < bufferItems.length) {
+                if (currentVisibleBuffer)
+                    currentVisibleBuffer.visible = false
+                currentVisibleBuffer = bufferItems[i]
+                currentVisibleBuffer.visible = true
             }
+        }
 
-            model: weechat.buffers[channelListView.currentIndex].lines
+        Component.onCompleted: {
+            for (var i = 0; i < weechat.buffers.length; i++) {
+                var weechatBuffer = weechat.buffers[i];
+                bufferItems[i] = bufferComponent.createObject(bufferContainer, { bufferIndex: i, visible: false })
+            }
+            changeVisibleBuffer()
+        }
+    }
+    Component {
+        id: bufferComponent
+
+        Rectangle {
+            anchors.fill: parent
+            color: 'black'
+
+            property variant bufferIndex: -1
+
+            ListView {
+                anchors.fill: parent
+                anchors.leftMargin: 3
+
+                Component.onCompleted: positionViewAtEnd()
+
+                delegate: Item {
+                    height: messageLabel.height
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+
+                    Text {
+                        id: timestampLabel
+
+                        text: '12:34:56'
+                        font.family: 'monospace'
+                        color: 'white'
+                    }
+
+                    Text {
+                        id: nickLabel
+                        anchors.leftMargin: 5
+                        anchors.left: timestampLabel.right
+
+                        textFormat: Text.RichText
+
+                        text: model.modelData.prefix
+                    }
+
+                    Rectangle {
+                        id: border
+                        anchors.left: nickLabel.right
+                        anchors.leftMargin: 5
+                        height: parent.height
+                        width: 1
+                    }
+
+                    Text {
+                        id: messageLabel
+                        anchors.left: border.right
+                        anchors.right: parent.right
+                        anchors.leftMargin: 5
+
+                        wrapMode: Text.Wrap
+                        textFormat: Text.RichText
+
+                        text: model.modelData.message
+                    }
+                }
+
+                model: weechat.buffers[bufferIndex].lines
+            }
         }
     }
 }
