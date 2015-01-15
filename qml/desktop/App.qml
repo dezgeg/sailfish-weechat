@@ -121,7 +121,8 @@ Rectangle {
                 return r;
             }
 
-            property variant bufferIndex: -1
+            property int bufferIndex: -1
+            property int nickWidth: measureNicks()
             Component.onCompleted: positionViewAtEnd()
 
             delegate: Item {
@@ -141,7 +142,7 @@ Rectangle {
                     id: nickLabel
                     anchors.leftMargin: textMargin
                     anchors.left: timestampLabel.right
-                    width: measureNicks()
+                    width: nickWidth
 
                     textFormat: Text.StyledText
                     horizontalAlignment: Text.AlignRight
