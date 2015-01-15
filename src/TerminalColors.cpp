@@ -121,7 +121,8 @@ QByteArray convertColorCodes(const QByteArray& str) {
     ret.append("<html><span style=\"color: #ffffff\">");
 
     for (int i = 0; i < str.size(); i++) {
-        if (str[i] == 0x19) {
+        char c = str[i];
+        if (c == 0x19) {
             i++;
             char escape = str[i];
             if (escape == 'F' || escape == '*') {
@@ -133,18 +134,21 @@ QByteArray convertColorCodes(const QByteArray& str) {
                 qDebug() << "color code used: " << newColor << str;
             } else if (isdigit(escape)) {
                 int index = 10 * (escape - '0') + str[++i] - '0';
-                ret += QString().sprintf("</span><span style=\"color: #%06x\">",weechatInternalColors[index]);
+                ret += QString().sprintf("</span><span style=\"color: #%06x\">", weechatInternalColors[index]);
                 qDebug() << "internal color used: " << index << str;
             } else {
                 qDebug() << "Unknown byte after 0x19 escape: " << int(escape);
             }
-        } else if (str[i] >= 0x1a && str[i] <= 0x1c) {
+        } else if (c >= 0x1a && c <= 0x1c) {
             qDebug() << "Unhandled color escape: " << int(str[i]);
+        } else if (c == '<') {
+            ret.append("&lt;");
+        } else if (c == '>') {
+            ret.append("&gt;");
         } else {
-            ret.push_back(str[i]);
+            ret.push_back(c);
         }
     }
-
     ret.append("</span></html>");
     return ret;
 }
