@@ -153,7 +153,7 @@ QByteArray convertColorCodes(const QByteArray& str) {
             ret.push_back(c);
         }
     }
-    ret.append("</span></html>");
+    ret.append("</font></html>");
     return ret;
 }
 // XXX: not in this file
@@ -176,11 +176,5 @@ QByteArray convertUrls(QByteArray bytes) {
                     ")?" // make URL suffix optional
     );
 
-    QRegularExpressionMatchIterator i = re.globalMatch(str);
-    while (i.hasNext()) {
-        QRegularExpressionMatch match = i.next();
-        str.replace(match.capturedStart(), match.capturedLength(),
-                "<a href=\"" + QUrl::toPercentEncoding(match.captured()) + "\">" + match.captured() + "</a>");
-    }
-    return str.toUtf8();
+    return str.replace(re, "<a href=\"\\1\">\\1</a>").toUtf8();
 }

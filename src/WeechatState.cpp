@@ -38,7 +38,7 @@ void WeechatState::process() {
             buffer->id = hash["__path"].toList().at(0).toUInt();
             buffer->fullName = hash["full_name"].toByteArray();
             buffer->shortName = hash["short_name"].toByteArray();
-            buffer->title = hash["title"].toByteArray();
+            buffer->title = "<html><font color=\"#ffffff\">" + convertUrls(hash["title"].toByteArray()) + "</font></html>";
             buffer->localVariables = hash["local_variables"].toHash();
 
             buffers[buffer->id] = buffer;

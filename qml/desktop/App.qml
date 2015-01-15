@@ -70,6 +70,7 @@ Rectangle {
             anchors.leftMargin: textMargin
             text: weechat.buffers[channelListView.currentIndex].title
             color: 'white'
+            onLinkActivated: Qt.openUrlExternally(link)
         }
     }
 
@@ -168,6 +169,7 @@ Rectangle {
                     textFormat: Text.StyledText
 
                     text: model.modelData.message
+                    onLinkActivated: Qt.openUrlExternally(link)
                 }
             }
 
