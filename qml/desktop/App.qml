@@ -24,6 +24,7 @@ Rectangle {
     property int textMargin: 3
     SystemPalette { id: palette; colorGroup: SystemPalette.Active }
     FontMeasurer { id: fontMeasurer }
+    StyledText { id: dummyText; visible: false; text: "FOObar" }
 
     Rectangle {
         id: channelListContainer
@@ -37,7 +38,7 @@ Rectangle {
             var arr = [];
             for (var i = 0; i < weechat.buffers.length; i++)
                 arr.push(weechat.buffers[i].shortName);
-            return fontMeasurer.findMaxWidth(arr) + textMargin
+            return fontMeasurer.findMaxWidth(dummyText.font, arr) + textMargin
         }
 
         ListView {
@@ -52,7 +53,7 @@ Rectangle {
                 color: ListView.isCurrentItem ? 'white' : channelListContainer.color
                 property color textColor: 'black'
 
-                Text {
+                StyledText {
                     id: bufferName
                     text: model.modelData.shortName == '' ? model.modelData.fullName : model.modelData.shortName
                     color: channelContainer.textColor
@@ -83,21 +84,31 @@ Rectangle {
         color: 'blue'
         z: 1
 
-        Text {
+        StyledText {
             id: titleText
             anchors.left: parent.left
             anchors.leftMargin: textMargin
             text: weechat.buffers[channelListView.currentIndex].title
-            color: 'white'
-            onLinkActivated: Qt.openUrlExternally(link)
         }
+    }
+
+    ScrollBar {
+        id: scrollBar
+        anchors.top: titleContainer.bottom
+        anchors.bottom: parent.bottom
+        anchors.right: parent.right
+        width: 12
+
+        orientation: Qt.Vertical
+        position: bufferContainer.currentVisibleBuffer.visibleArea.yPosition
+        pageSize: bufferContainer.currentVisibleBuffer.visibleArea.heightRatio
     }
 
     Rectangle {
         id: bufferContainer
 
         anchors.left: channelListContainer.right
-        anchors.right: parent.right
+        anchors.right: scrollBar.left
         anchors.top: titleContainer.bottom
         anchors.bottom: parent.bottom
 
@@ -136,20 +147,21 @@ Rectangle {
         ListView {
             id: bufferListView
             anchors.fill: parent
-            anchors.leftMargin: textMargin
 
             function measureNicks() {
                 var arr = [];
                 var nicks = weechat.buffers[bufferIndex].nicks;
                 for (var i = 0; i < nicks.length; i++)
                     arr.push(nicks[i].name);
-                var r = fontMeasurer.findMaxWidth(arr) + textMargin
+                var r = fontMeasurer.findMaxWidth(dummyText.font, arr) + textMargin
                 console.log('measureNicks', arr, r);
                 return r;
             }
 
             property int bufferIndex: -1
             property int nickWidth: measureNicks()
+            property int numTextLinesPerScreen: Math.round(width / fontMeasurer.getFontHeight())
+
             Component.onCompleted: positionViewAtEnd()
 
             delegate: Item {
@@ -157,15 +169,15 @@ Rectangle {
                 anchors.left: parent.left
                 anchors.right: parent.right
 
-                Text {
+                StyledText {
                     id: timestampLabel
 
                     text: model.modelData.formatTimestamp()
                     font.family: 'monospace'
-                    color: 'white'
+                    width: fontMeasurer.findMaxWidth(timestampLabel.font, ['88:88:88'])
                 }
 
-                Text {
+                StyledText {
                     id: nickLabel
                     anchors.leftMargin: textMargin
                     anchors.left: timestampLabel.right
@@ -185,7 +197,7 @@ Rectangle {
                     width: 1
                 }
 
-                Text {
+                StyledText {
                     id: messageLabel
                     anchors.left: border.right
                     anchors.right: parent.right
@@ -195,7 +207,6 @@ Rectangle {
                     textFormat: Text.StyledText
 
                     text: model.modelData.message
-                    onLinkActivated: Qt.openUrlExternally(link)
                 }
             }
 

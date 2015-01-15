@@ -7,6 +7,7 @@ class FontMeasurer : public QObject {
 public:
     explicit FontMeasurer(QObject* parent = nullptr) : QObject(parent) { }
 
-    Q_INVOKABLE int findMaxWidth(QList<QString> strings);
+    Q_INVOKABLE int findMaxWidth(QFont font, QList<QString> strings);
+    Q_INVOKABLE int getFontHeight();
 };
 
