@@ -65,7 +65,7 @@ static const uint32_t weechatInternalColors[] = {
         0x000000, // chat_server
         0x000000, // chat_channel *
         0x000000, // chat_nick
-        0x000000, // chat_nick_self *
+        0xffffff, // chat_nick_self *
         0x000000, // chat_nick_other
         0x000000, // nick1
         0x000000, // nick2
