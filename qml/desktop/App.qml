@@ -111,6 +111,16 @@ Rectangle {
             anchors.fill: parent
             anchors.leftMargin: textMargin
 
+            function measureNicks() {
+                var arr = [];
+                var nicks = weechat.buffers[bufferIndex].nicks;
+                for (var i = 0; i < nicks.length; i++)
+                    arr.push(nicks[i].name);
+                var r = fontMeasurer.findMaxWidth(arr) + textMargin
+                console.log('measureNicks', arr, r);
+                return r;
+            }
+
             property variant bufferIndex: -1
             Component.onCompleted: positionViewAtEnd()
 
@@ -129,10 +139,12 @@ Rectangle {
 
                 Text {
                     id: nickLabel
-                    anchors.leftMargin: 5
+                    anchors.leftMargin: textMargin
                     anchors.left: timestampLabel.right
+                    width: measureNicks()
 
                     textFormat: Text.RichText
+                    horizontalAlignment: Text.AlignRight
 
                     text: model.modelData.prefix
                 }
@@ -140,7 +152,7 @@ Rectangle {
                 Rectangle {
                     id: border
                     anchors.left: nickLabel.right
-                    anchors.leftMargin: 5
+                    anchors.leftMargin: textMargin
                     height: parent.height
                     width: 1
                 }
