@@ -118,7 +118,7 @@ static int parseOneColor(QByteArray const& str, int i, int* pNewColor, char* pNe
 
 QByteArray convertColorCodes(const QByteArray& str) {
     QByteArray ret;
-    ret.append("<html><span style=\"color: #ffffff\">");
+    ret.append("<html><font color=\"#ffffff\">");
 
     for (int i = 0; i < str.size(); i++) {
         char c = str[i];
@@ -130,11 +130,11 @@ QByteArray convertColorCodes(const QByteArray& str) {
                 int newColor;
                 char newAttr;
                 i = parseOneColor(str, i, &newColor, &newAttr);
-                ret += QString().sprintf("</span><span style=\"color: #%06x\">", terminalColors[newColor]);
+                ret += QString().sprintf("</font><font color=\"#%06x\">", terminalColors[newColor]);
                 qDebug() << "color code used: " << newColor << str;
             } else if (isdigit(escape)) {
                 int index = 10 * (escape - '0') + str[++i] - '0';
-                ret += QString().sprintf("</span><span style=\"color: #%06x\">", weechatInternalColors[index]);
+                ret += QString().sprintf("</font><font color=\"#%06x\">", weechatInternalColors[index]);
                 qDebug() << "internal color used: " << index << str;
             } else {
                 qDebug() << "Unknown byte after 0x19 escape: " << int(escape);

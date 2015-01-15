@@ -143,7 +143,7 @@ Rectangle {
                     anchors.left: timestampLabel.right
                     width: measureNicks()
 
-                    textFormat: Text.RichText
+                    textFormat: Text.StyledText
                     horizontalAlignment: Text.AlignRight
 
                     text: model.modelData.prefix
@@ -164,7 +164,7 @@ Rectangle {
                     anchors.leftMargin: 5
 
                     wrapMode: Text.Wrap
-                    textFormat: Text.RichText
+                    textFormat: Text.StyledText
 
                     text: model.modelData.message
                 }
