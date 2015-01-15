@@ -34,8 +34,8 @@ int main(int argc, char** argv) {
 
 #if 0
     qDebug() << "Buffers:";
-    for (const auto& buf : weechat.buffers) {
-        qDebug() << buf;
+    for (auto buf : weechat.buffers) {
+        qDebug() << *buf;
         for (auto nick : buf->nicks) {
             qDebug() << "   " << *nick;
         }
