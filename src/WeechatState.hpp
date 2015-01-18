@@ -114,9 +114,7 @@ public:
             relay.writeString("sync\n");
             relay.flush();
         });
-        connect(&relay, &RelayConnection::relayMessageReceived, [=](QByteArray frameId, QVariant response){
-            process(frameId, response);
-        });
+        connect(&relay, &RelayConnection::relayMessageReceived, this, &WeechatState::process);
     }
 
     RelayConnection relay;
