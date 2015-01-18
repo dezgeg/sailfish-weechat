@@ -17,44 +17,28 @@ int main(int argc, char** argv) {
     qmlRegisterType<FontMeasurer>("SailfishWeechat", 1, 0, "FontMeasurer");
 
     WeechatState weechat;
-    weechat.relay.connect("localhost", 9001);
-
-    weechat.relay.writeString("init password=ffc54fe75cb3db7499544dfce520fd65589045756dd94d3bdb6bb38443ed7e61,compression=off\n");
-    weechat.relay.writeString("(listbuffers) hdata buffer:gui_buffers(*) number,full_name,short_name,type,nicklist,title,local_variables\n");
-    weechat.relay.writeString("(listlines) hdata buffer:gui_buffers(*)/own_lines/last_line(-60)/data date,displayed,prefix,message\n");
-    weechat.relay.writeString("(nicklist) nicklist\n");
-
-//    relay.writeString("info version\n");
-//    relay.writeString("ping foo\n");
-//    relay.writeString("hdata buffer:gui_buffers(*)\n");
-//    relay.writeString("nicklist\n");
-//    relay.writeString("test\ntest\n");
-    weechat.relay.flush();
-
-    for (int i = 0; i < 3; i++) {
-        weechat.process();
-    }
-
-#if 0
-    qDebug() << "Buffers:";
-    for (auto buf : weechat.buffers) {
-        qDebug() << *buf;
-        for (auto nick : buf->nicks) {
-            qDebug() << "   " << *nick;
-        }
-        for (auto line : buf->lines) {
-            qDebug() << "   " << *line;
-        }
-        qDebug() << "";
-    }
-#endif
+    weechat.relay.connectToHost("localhost", 9001);
 
     QQuickView view;
-    view.rootContext()->setContextProperty("weechat", &weechat);
-    view.setResizeMode(QQuickView::SizeRootObjectToView);
-    // XXX
-    view.setSource(QUrl::fromLocalFile("/home/tmtynkky/sailfish-weechat/qml/desktop/App.qml"));
-    view.show();
+    QObject::connect(&weechat, &WeechatState::connectionEstablished, [&] {
+        view.rootContext()->setContextProperty("weechat", &weechat);
+        view.setResizeMode(QQuickView::SizeRootObjectToView);
+        view.setSource(QUrl::fromLocalFile("/home/tmtynkky/sailfish-weechat/qml/desktop/App.qml"));
+        view.show();
+#if 0
+        qDebug() << "Buffers:";
+        for (auto buf : weechat.buffers) {
+            qDebug() << *buf;
+            for (auto nick : buf->nicks) {
+                qDebug() << "   " << *nick;
+            }
+            for (auto line : buf->lines) {
+                qDebug() << "   " << *line;
+            }
+            qDebug() << "";
+        }
+#endif
+    });
 
     return app.exec();
 }

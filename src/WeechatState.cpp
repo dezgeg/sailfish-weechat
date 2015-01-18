@@ -28,9 +28,8 @@ QDebug operator<<(QDebug dbg, const WeechatBuffer& that) {
     return dbg.space();
 }
 
-void WeechatState::process() {
-    QVariant reply = relay.readReply();
-    if (relay.currentFrameId == "listbuffers") {
+void WeechatState::process(QByteArray frameId, QVariant reply) {
+    if (frameId == "listbuffers") {
         for (QVariant variant : reply.toList()) {
             QHash<QString, QVariant> hash = variant.toHash();
 
@@ -45,7 +44,7 @@ void WeechatState::process() {
             buffers[buffer->id] = buffer;
             buffersInOrder.push_back(buffer);
         }
-    } else if (relay.currentFrameId == "listlines") {
+    } else if (frameId == "listlines") {
         for (QVariant variant : reply.toList()) {
             QHash<QString, QVariant> hash = variant.toHash();
             WPointer bufferId = hash["__path"].toList().at(0).toUInt();
@@ -61,7 +60,7 @@ void WeechatState::process() {
         for (WeechatBuffer* buf : buffers) {
             std::reverse(std::begin(buf->lines), std::end(buf->lines));
         }
-    } else if (relay.currentFrameId == "nicklist") {
+    } else if (frameId == "nicklist") {
         for (QVariant variant : reply.toList()) {
             QHash<QString, QVariant> hash = variant.toHash();
             if (hash["level"].toUInt() != 0) {
@@ -77,5 +76,7 @@ void WeechatState::process() {
 
             buffers[bufferId]->nicks.push_back(nick);
         }
+        // initial server state is now synced after nicklist is received
+        emit connectionEstablished();
     }
 }

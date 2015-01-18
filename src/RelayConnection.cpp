@@ -122,29 +122,34 @@ QVariant RelayConnection::readFieldOfType(QByteArray type) {
     return QVariant();
 }
 
-QVariant RelayConnection::readReply() {
-    qint64 posAtStart = sock->pos();
-
+bool RelayConnection::readRelayReply() {
     if (remainingBytesInFrame == 0) {
-        while (sock->bytesAvailable() < 4) {
-            sock->waitForReadyRead();
+        if (sock->bytesAvailable() < 4) {
+            return false;
         }
+
         uint32_t frameLength;
         stream >> frameLength;
-
-        while (sock->bytesAvailable() < frameLength - 4) {
-            sock->waitForReadyRead();
-        }
-
-        uint8_t compressionFlag;
-        stream >> compressionFlag;
-        currentFrameId = readString();
-        qDebug() << "Frame - compression:" << compressionFlag << "id:" << currentFrameId;
-        remainingBytesInFrame = frameLength;
+        remainingBytesInFrame = frameLength - 4;
     }
 
-    QByteArray type = readByteArray(TYPE_LENGTH);
-    QVariant ret = readFieldOfType(type);
+    if (sock->bytesAvailable() < remainingBytesInFrame) {
+        return false;
+    }
+    qint64 posAtStart = sock->pos();
+
+    uint8_t compressionFlag;
+    stream >> compressionFlag;
+    currentFrameId = readString();
+    qDebug() << "Frame - compression:" << compressionFlag << "id:" << currentFrameId;
     remainingBytesInFrame -= sock->pos() - posAtStart;
-    return ret;
+
+    while (remainingBytesInFrame) {
+        posAtStart = sock->pos();
+        QByteArray type = readByteArray(TYPE_LENGTH);
+        QVariant message = readFieldOfType(type);
+        emit relayMessageReceived(currentFrameId, message);
+        remainingBytesInFrame -= sock->pos() - posAtStart;
+    }
+    return true;
 }

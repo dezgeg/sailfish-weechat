@@ -181,7 +181,7 @@ Rectangle {
                 for (var i = 0; i < nicks.length; i++)
                     arr.push(nicks[i].name);
                 var r = fontMeasurer.findMaxWidth(dummyText.font, arr) + textMargin
-                console.log('measureNicks', arr, r);
+                // console.log('measureNicks', arr, r);
                 return r;
             }
 

@@ -135,11 +135,11 @@ QByteArray convertColorCodes(const QByteArray& str) {
                 char newAttr;
                 i = parseOneColor(str, i, &newColor, &newAttr);
                 ret += QString().sprintf("</font><font color=\"#%06x\">", terminalColors[newColor]);
-                qDebug() << "color code used: " << newColor << str;
+//                qDebug() << "color code used: " << newColor << str;
             } else if (isdigit(escape)) {
                 int index = 10 * (escape - '0') + str[++i] - '0';
                 ret += QString().sprintf("</font><font color=\"#%06x\">", weechatInternalColors[index]);
-                qDebug() << "internal color used: " << index << str;
+//                qDebug() << "internal color used: " << index << str;
             } else {
                 qDebug() << "Unknown byte after 0x19 escape: " << int(escape);
             }
@@ -156,6 +156,7 @@ QByteArray convertColorCodes(const QByteArray& str) {
     ret.append("</font></html>");
     return ret;
 }
+
 // XXX: not in this file
 QByteArray convertUrls(QByteArray bytes) {
     QString str = bytes;
