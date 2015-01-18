@@ -1,10 +1,12 @@
 #pragma once
 
 #include <algorithm>
+#include <QAbstractListModel>
 #include <QDebug>
 #include <QDateTime>
 #include <QObject>
 #include <QQmlListProperty>
+#include <QMetaProperty>
 #include "RelayConnection.hpp"
 
 #define PROP(type, field) type field; Q_PROPERTY(type field MEMBER field CONSTANT)
@@ -35,10 +37,12 @@ public:
 };
 QDebug operator<<(QDebug dbg, const WeechatNick& that);
 
-class WeechatBuffer : public QObject {
+class WeechatBuffer : public QAbstractListModel {
 Q_OBJECT
+    static QHash<int, QByteArray> ROLE_NAMES;
+
 public:
-    explicit WeechatBuffer(QObject* parent = nullptr) : QObject(parent) { }
+    explicit WeechatBuffer(QObject* parent = nullptr) : QAbstractListModel(parent) { }
 
     PROP(WPointer, id);
     PROP(int, number);
@@ -50,15 +54,40 @@ public:
     QList<WeechatLine*> lines;
     QList<WeechatNick*> nicks;
 
+    virtual int rowCount(QModelIndex const&) const {
+        return lines.length();
+    }
+
+    virtual QVariant data(const QModelIndex& index, int role) const {
+        WeechatLine* line = lines[index.row()];
+        return line->property(ROLE_NAMES[role]);
+    }
+
+    virtual QHash<int, QByteArray> roleNames() const {
+        if (ROLE_NAMES.isEmpty()) {
+            for (int i = 0; i < WeechatLine::staticMetaObject.propertyCount(); i++) {
+                ROLE_NAMES[Qt::UserRole + i] = WeechatLine::staticMetaObject.property(i).name();
+            }
+        }
+        return ROLE_NAMES;
+    }
+
+    void insertLine(WeechatLine* line, bool notify) {
+        if (notify) {
+            beginInsertRows(QModelIndex(), lines.length(), lines.length());
+        }
+        lines.push_back(line);
+        if (notify) {
+            endInsertRows();
+        }
+    }
+
 private:
-    Q_PROPERTY(QQmlListProperty<WeechatLine> lines READ _getLines NOTIFY linesChanged);
+    Q_PROPERTY(QQmlListProperty<WeechatLine> lines READ _getLines CONSTANT);
     Q_PROPERTY(QQmlListProperty<WeechatNick> nicks READ _getNicks CONSTANT);
 
     QQmlListProperty<WeechatLine> _getLines() { return QQmlListProperty<WeechatLine>(this, lines); }
     QQmlListProperty<WeechatNick> _getNicks() { return QQmlListProperty<WeechatNick>(this, nicks); }
-
-Q_SIGNALS:
-    void linesChanged();
 };
 QDebug operator<<(QDebug dbg, const WeechatBuffer& that);
 

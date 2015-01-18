@@ -3,6 +3,8 @@
 
 #define PRINT_FIELD(field) #field ": " << that.field << ", "
 
+QHash<int, QByteArray> WeechatBuffer::ROLE_NAMES;
+
 QDebug operator<<(QDebug dbg, const WeechatLine& that) {
     dbg.nospace() << "Line{ " <<
             "timestamp: " << that.formatTimestamp() << ", " <<
@@ -92,15 +94,15 @@ void WeechatState::process(QByteArray frameId, QVariant reply) {
         //        ( "tags_array" ,  QVariant(QVariantList, (QVariant(QByteArray, "irc_privmsg") ,  QVariant(QByteArray, "notify_message") ,  QVariant(QByteArray, "prefix_nick_blue") ,  QVariant(QByteArray, "nick_OOliOO") ,  QVariant(QByteArray, "log1") ) ) ) ) ) ) )
         QVariantHash hash = reply.toList().first().toHash();
         WPointer bufferId = hash["buffer"].toUInt();
+        WeechatBuffer* buffer = buffers[bufferId];
 
-        WeechatLine* line = new WeechatLine(buffers[bufferId]);
+        WeechatLine* line = new WeechatLine(buffer);
         line->timestamp = QDateTime::fromTime_t(hash["date"].toUInt());
         line->message = convertUrls(convertColorCodes(hash["message"].toByteArray()));
         line->prefix = convertColorCodes(hash["prefix"].toByteArray());
         line->displayed = hash["displayed"].toBool();
 
-        buffers[bufferId]->lines.push_back(line);
-        emit buffers[bufferId]->linesChanged();
+        buffer->insertLine(line, true);
     } else {
         qDebug() << "Unknown message: " << frameId << reply;
     }

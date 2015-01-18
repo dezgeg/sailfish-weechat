@@ -199,7 +199,7 @@ Rectangle {
                 StyledText {
                     id: timestampLabel
 
-                    text: model.modelData.formatTimestamp()
+                    text: model.timestamp.toString().substring(11, 11+8) // HACK
                     font.family: 'monospace'
                     width: fontMeasurer.findMaxWidth(timestampLabel.font, ['88:88:88'])
                 }
@@ -213,7 +213,7 @@ Rectangle {
                     textFormat: Text.StyledText
                     horizontalAlignment: Text.AlignRight
 
-                    text: model.modelData.prefix
+                    text: model.prefix
                 }
 
                 Rectangle {
@@ -233,12 +233,12 @@ Rectangle {
                     wrapMode: Text.Wrap
                     textFormat: Text.StyledText
 
-                    text: model.modelData.message
+                    text: model.message
                 }
             }
 
             snapMode: ListView.SnapToItem
-            model: weechat.buffers[bufferIndex].lines
+            model: weechat.buffers[bufferIndex]
         }
     }
 }
