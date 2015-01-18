@@ -78,5 +78,30 @@ void WeechatState::process(QByteArray frameId, QVariant reply) {
         }
         // initial server state is now synced after nicklist is received
         emit connectionEstablished();
+    } else if (frameId == "_buffer_line_added") {
+        // Unknown message:  "_buffer_line_added" QVariant(QVariantList, (
+        //    QVariant(QVariantHash, QHash(
+        //        ("date_printed", QVariant(int, 1421594759) )
+        //        ( "displayed" ,  QVariant(int, 1) )
+        //        ( "highlight" ,  QVariant(int, 0) )
+        //        ( "message" ,  QVariant(QByteArray, "ja voi tehä bitsetin") )
+        //        ( "date" ,  QVariant(int, 1421594759) )
+        //        ( "prefix" ,  QVariant(QByteArray, "F10F09OOliOO") )
+        //        ( "buffer" ,  QVariant(qulonglong, 43388864) )
+        //        ( "__path" ,  QVariant(QVariantList, (QVariant(qulonglong, 54306176) ) ) )
+        //        ( "tags_array" ,  QVariant(QVariantList, (QVariant(QByteArray, "irc_privmsg") ,  QVariant(QByteArray, "notify_message") ,  QVariant(QByteArray, "prefix_nick_blue") ,  QVariant(QByteArray, "nick_OOliOO") ,  QVariant(QByteArray, "log1") ) ) ) ) ) ) )
+        QVariantHash hash = reply.toList().first().toHash();
+        WPointer bufferId = hash["buffer"].toUInt();
+
+        WeechatLine* line = new WeechatLine(buffers[bufferId]);
+        line->timestamp = QDateTime::fromTime_t(hash["date"].toUInt());
+        line->message = convertUrls(convertColorCodes(hash["message"].toByteArray()));
+        line->prefix = convertColorCodes(hash["prefix"].toByteArray());
+        line->displayed = hash["displayed"].toBool();
+
+        buffers[bufferId]->lines.push_back(line);
+        emit buffers[bufferId]->linesChanged();
+    } else {
+        qDebug() << "Unknown message: " << frameId << reply;
     }
 }

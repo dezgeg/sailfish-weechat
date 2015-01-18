@@ -51,11 +51,14 @@ public:
     QList<WeechatNick*> nicks;
 
 private:
-    Q_PROPERTY(QQmlListProperty<WeechatLine> lines READ _getLines CONSTANT);
+    Q_PROPERTY(QQmlListProperty<WeechatLine> lines READ _getLines NOTIFY linesChanged);
     Q_PROPERTY(QQmlListProperty<WeechatNick> nicks READ _getNicks CONSTANT);
 
     QQmlListProperty<WeechatLine> _getLines() { return QQmlListProperty<WeechatLine>(this, lines); }
     QQmlListProperty<WeechatNick> _getNicks() { return QQmlListProperty<WeechatNick>(this, nicks); }
+
+Q_SIGNALS:
+    void linesChanged();
 };
 QDebug operator<<(QDebug dbg, const WeechatBuffer& that);
 
@@ -71,8 +74,9 @@ public:
         connect(&relay, &RelayConnection::relayConnected, [=]{
             relay.writeString("init password=ffc54fe75cb3db7499544dfce520fd65589045756dd94d3bdb6bb38443ed7e61,compression=off\n");
             relay.writeString("(listbuffers) hdata buffer:gui_buffers(*) number,full_name,short_name,type,nicklist,title,local_variables\n");
-            relay.writeString("(listlines) hdata buffer:gui_buffers(*)/own_lines/last_line(-60)/data date,displayed,prefix,message\n");
+            relay.writeString("(listlines) hdata buffer:gui_buffers(*)/own_lines/last_line(-120)/data date,displayed,prefix,message\n");
             relay.writeString("(nicklist) nicklist\n");
+            relay.writeString("sync\n");
             relay.flush();
         });
         connect(&relay, &RelayConnection::relayMessageReceived, [=](QByteArray frameId, QVariant response){
