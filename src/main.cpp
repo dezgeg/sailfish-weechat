@@ -9,7 +9,6 @@
 
 int main(int argc, char** argv) {
     QGuiApplication app(argc, argv);
-    qmlRegisterType<WeechatLine>("SailfishWeechat", 1, 0, "WeechatLine");
     qmlRegisterType<WeechatNick>("SailfishWeechat", 1, 0, "WeechatNick");
     qmlRegisterType<WeechatBuffer>("SailfishWeechat", 1, 0, "WeechatBuffer");
     qmlRegisterType<WeechatState>("SailfishWeechat", 1, 0, "WeechatState");

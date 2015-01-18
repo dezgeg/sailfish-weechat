@@ -11,19 +11,25 @@
 
 #define PROP(type, field) type field; Q_PROPERTY(type field MEMBER field CONSTANT)
 
-class WeechatLine : public QObject {
-Q_OBJECT
+class WeechatLine {
 public:
-    explicit WeechatLine(QObject* parent = nullptr) : QObject(parent) { }
+    static QHash<int, QByteArray> ROLE_NAMES;
 
-    PROP(QDateTime, timestamp);
-    PROP(QByteArray, prefix);
-    PROP(QByteArray, message);
-    PROP(bool, displayed);
+    QDateTime timestamp;
+    QByteArray prefix;
+    QByteArray message;
+    bool displayed;
 
-    Q_INVOKABLE QString formatTimestamp() const {
+    QString formatTimestamp() const {
         return timestamp.toString("hh:mm:ss");
     }
+
+    enum Role {
+        Timestamp,
+        Prefix,
+        Message,
+        Displayed,
+    };
 };
 QDebug operator<<(QDebug dbg, const WeechatLine& that);
 
@@ -39,7 +45,6 @@ QDebug operator<<(QDebug dbg, const WeechatNick& that);
 
 class WeechatBuffer : public QAbstractListModel {
 Q_OBJECT
-    static QHash<int, QByteArray> ROLE_NAMES;
 
 public:
     explicit WeechatBuffer(QObject* parent = nullptr) : QAbstractListModel(parent) { }
@@ -51,7 +56,7 @@ public:
     PROP(QByteArray, title);
     PROP(QVariantHash, localVariables);
 
-    QList<WeechatLine*> lines;
+    QList<WeechatLine> lines;
     QList<WeechatNick*> nicks;
 
     virtual int rowCount(QModelIndex const&) const {
@@ -59,20 +64,23 @@ public:
     }
 
     virtual QVariant data(const QModelIndex& index, int role) const {
-        WeechatLine* line = lines[index.row()];
-        return line->property(ROLE_NAMES[role]);
+        const WeechatLine& line = lines[index.row()];
+        switch (role) {
+            case WeechatLine::Timestamp:
+                return line.formatTimestamp();
+            case WeechatLine::Prefix:
+                return line.prefix;
+            case WeechatLine::Message:
+                return line.message;
+        }
+        Q_ASSERT(0);
     }
 
     virtual QHash<int, QByteArray> roleNames() const {
-        if (ROLE_NAMES.isEmpty()) {
-            for (int i = 0; i < WeechatLine::staticMetaObject.propertyCount(); i++) {
-                ROLE_NAMES[Qt::UserRole + i] = WeechatLine::staticMetaObject.property(i).name();
-            }
-        }
-        return ROLE_NAMES;
+        return WeechatLine::ROLE_NAMES;
     }
 
-    void insertLine(WeechatLine* line, bool notify) {
+    void insertLine(WeechatLine& line, bool notify) {
         if (notify) {
             beginInsertRows(QModelIndex(), lines.length(), lines.length());
         }
@@ -83,10 +91,8 @@ public:
     }
 
 private:
-    Q_PROPERTY(QQmlListProperty<WeechatLine> lines READ _getLines CONSTANT);
     Q_PROPERTY(QQmlListProperty<WeechatNick> nicks READ _getNicks CONSTANT);
 
-    QQmlListProperty<WeechatLine> _getLines() { return QQmlListProperty<WeechatLine>(this, lines); }
     QQmlListProperty<WeechatNick> _getNicks() { return QQmlListProperty<WeechatNick>(this, nicks); }
 };
 QDebug operator<<(QDebug dbg, const WeechatBuffer& that);

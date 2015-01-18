@@ -3,7 +3,11 @@
 
 #define PRINT_FIELD(field) #field ": " << that.field << ", "
 
-QHash<int, QByteArray> WeechatBuffer::ROLE_NAMES;
+QHash<int, QByteArray> WeechatLine::ROLE_NAMES = {
+        { WeechatLine::Timestamp, "timestamp" },
+        { WeechatLine::Prefix, "prefix" },
+        { WeechatLine::Message, "message" },
+};
 
 QDebug operator<<(QDebug dbg, const WeechatLine& that) {
     dbg.nospace() << "Line{ " <<
@@ -50,14 +54,15 @@ void WeechatState::process(QByteArray frameId, QVariant reply) {
         for (QVariant variant : reply.toList()) {
             QHash<QString, QVariant> hash = variant.toHash();
             WPointer bufferId = hash["__path"].toList().at(0).toUInt();
+            WeechatBuffer* buffer = buffers[bufferId];
 
-            WeechatLine* line = new WeechatLine(buffers[bufferId]);
-            line->timestamp = QDateTime::fromTime_t(hash["date"].toUInt());
-            line->message = convertUrls(convertColorCodes(hash["message"].toByteArray()));
-            line->prefix = convertColorCodes(hash["prefix"].toByteArray());
-            line->displayed = hash["displayed"].toBool();
+            WeechatLine line;
+            line.timestamp = QDateTime::fromTime_t(hash["date"].toUInt());
+            line.message = convertUrls(convertColorCodes(hash["message"].toByteArray()));
+            line.prefix = convertColorCodes(hash["prefix"].toByteArray());
+            line.displayed = hash["displayed"].toBool();
 
-            buffers[bufferId]->lines.push_back(line);
+            buffer->insertLine(line, false);
         }
         for (WeechatBuffer* buf : buffers) {
             std::reverse(std::begin(buf->lines), std::end(buf->lines));
@@ -96,11 +101,11 @@ void WeechatState::process(QByteArray frameId, QVariant reply) {
         WPointer bufferId = hash["buffer"].toUInt();
         WeechatBuffer* buffer = buffers[bufferId];
 
-        WeechatLine* line = new WeechatLine(buffer);
-        line->timestamp = QDateTime::fromTime_t(hash["date"].toUInt());
-        line->message = convertUrls(convertColorCodes(hash["message"].toByteArray()));
-        line->prefix = convertColorCodes(hash["prefix"].toByteArray());
-        line->displayed = hash["displayed"].toBool();
+        WeechatLine line;
+        line.timestamp = QDateTime::fromTime_t(hash["date"].toUInt());
+        line.message = convertUrls(convertColorCodes(hash["message"].toByteArray()));
+        line.prefix = convertColorCodes(hash["prefix"].toByteArray());
+        line.displayed = hash["displayed"].toBool();
 
         buffer->insertLine(line, true);
     } else {
