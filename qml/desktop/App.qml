@@ -189,7 +189,13 @@ Rectangle {
             property int nickWidth: measureNicks()
             property int numTextLinesPerScreen: Math.round(width / fontMeasurer.getFontHeight())
 
-            Component.onCompleted: positionViewAtEnd()
+            Component.onCompleted: {
+                positionViewAtEnd()
+                weechat.buffers[bufferIndex].rowsInserted.connect(function() {
+                    if (bufferListView.atYEnd)
+                        bufferListView.positionViewAtEnd()
+                })
+            }
 
             delegate: Item {
                 height: messageLabel.height
