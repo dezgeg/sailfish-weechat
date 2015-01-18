@@ -140,7 +140,7 @@ bool RelayConnection::readRelayReply() {
 
     uint8_t compressionFlag;
     stream >> compressionFlag;
-    currentFrameId = readString();
+    QByteArray currentFrameId = readString();
     qDebug() << "Frame - compression:" << compressionFlag << "id:" << currentFrameId;
     remainingBytesInFrame -= sock->pos() - posAtStart;
 

@@ -10,8 +10,6 @@ Q_OBJECT
 
     std::unique_ptr<QTcpSocket> sock;
     QDataStream stream;
-    QByteArray currentFrameId;
-    bool waitingForFullFrame;
     qint64 remainingBytesInFrame;
 
     QByteArray readByteArray(uint32_t len);
