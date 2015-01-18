@@ -41,6 +41,7 @@ public:
     explicit WeechatBuffer(QObject* parent = nullptr) : QObject(parent) { }
 
     PROP(WPointer, id);
+    PROP(int, number);
     PROP(QByteArray, fullName);
     PROP(QByteArray, shortName);
     PROP(QByteArray, title);

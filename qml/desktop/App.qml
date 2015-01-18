@@ -25,6 +25,13 @@ Rectangle {
     SystemPalette { id: palette; colorGroup: SystemPalette.Active }
     FontMeasurer { id: fontMeasurer }
     StyledText { id: dummyText; visible: false; text: "FOObar" }
+    StyledText {
+        id: dummyMonospaceText
+        visible: false
+        text: "FOObar"
+        font.family: 'monospace'
+        font.bold: true
+    }
 
     Rectangle {
         id: channelListContainer
@@ -34,11 +41,17 @@ Rectangle {
         width: measureBufferNames()
         color: 'darkgray'
 
+        property int numberWidth: fontMeasurer.findMaxWidth(dummyMonospaceText.font, ['88'])
+
         function measureBufferNames() {
             var arr = [];
             for (var i = 0; i < weechat.buffers.length; i++)
-                arr.push(weechat.buffers[i].shortName);
-            return fontMeasurer.findMaxWidth(dummyText.font, arr) + textMargin
+                arr.push(bufferNameHtml(weechat.buffers[i]));
+            return fontMeasurer.findMaxWidth(dummyText.font, arr) + textMargin + numberWidth
+        }
+
+        function bufferNameHtml(buffer) {
+            return buffer.shortName == '' ? buffer.fullName : buffer.shortName;
         }
 
         ListView {
@@ -54,9 +67,23 @@ Rectangle {
                 property color textColor: 'black'
 
                 StyledText {
-                    id: bufferName
-                    text: model.modelData.shortName == '' ? model.modelData.fullName : model.modelData.shortName
+                    id: bufferNumber
                     color: channelContainer.textColor
+                    textFormat: Text.StyledText
+                    text: model.modelData.number + (model.modelData.number < 10 ? ' ' : '')
+                    font.family: 'monospace'
+                    font.bold: true
+                    width: channelListContainer.numberWidth
+                }
+
+                StyledText {
+                    id: bufferName
+                    anchors.left: bufferNumber.right
+                    anchors.leftMargin: textMargin
+
+                    color: channelContainer.textColor
+                    textFormat: Text.StyledText
+                    text: channelListContainer.bufferNameHtml(model.modelData)
                 }
 
                 MouseArea {
