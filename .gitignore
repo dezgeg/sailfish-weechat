@@ -2,3 +2,4 @@
 sailfish-weechat
 Makefile
 out
+*.user

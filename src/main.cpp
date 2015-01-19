@@ -7,6 +7,11 @@
 #include "WeechatState.hpp"
 #include "FontMeasurer.hpp"
 
+//#define SAILFISH
+#ifdef SAILFISH
+#include <sailfishapp.h>
+#endif
+
 int main(int argc, char** argv) {
     QGuiApplication app(argc, argv);
     qmlRegisterType<WeechatNick>("SailfishWeechat", 1, 0, "WeechatNick");
@@ -22,7 +27,12 @@ int main(int argc, char** argv) {
     QObject::connect(&weechat, &WeechatState::connectionEstablished, [&] {
         view.rootContext()->setContextProperty("weechat", &weechat);
         view.setResizeMode(QQuickView::SizeRootObjectToView);
+#ifdef SAILFISH
+        view.setSource(SailfishApp::pathTo("qml/desktop/SailfishApp.qml"));
+#else
+        view.engine()->addImportPath("/home/tmtynkky/sailfish-weechat/qml/desktop/");
         view.setSource(QUrl::fromLocalFile("/home/tmtynkky/sailfish-weechat/qml/desktop/App.qml"));
+#endif
         view.show();
 #if 0
         qDebug() << "Buffers:";

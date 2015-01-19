@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QTcpSocket>
+#include <QDataStream>
 #include <memory>
 
 typedef uint64_t WPointer;

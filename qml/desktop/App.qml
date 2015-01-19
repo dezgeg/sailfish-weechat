@@ -1,25 +1,26 @@
 import QtQuick 2.0
-import QtQuick.Controls 1.3
+//import QtQuick.Controls 1.3
 import SailfishWeechat 1.0
+import Sailfish.Silica 1.0
 
-Rectangle {
+Page {
     id: page
 
-    Action { shortcut: "Alt+Left"; onTriggered: channelListView.decrementCurrentIndex() }
-    Action { shortcut: "Alt+Right"; onTriggered: channelListView.incrementCurrentIndex() }
-    Action { shortcut: "Alt+1"; onTriggered: channelListView.currentIndex = 0 }
-    Action { shortcut: "Alt+2"; onTriggered: channelListView.currentIndex = 1 }
-    Action { shortcut: "Alt+3"; onTriggered: channelListView.currentIndex = 2 }
-    Action { shortcut: "Alt+4"; onTriggered: channelListView.currentIndex = 3 }
-    Action { shortcut: "Alt+5"; onTriggered: channelListView.currentIndex = 4 }
-    Action { shortcut: "Alt+6"; onTriggered: channelListView.currentIndex = 5 }
-    Action { shortcut: "Alt+7"; onTriggered: channelListView.currentIndex = 6 }
-    Action { shortcut: "Alt+8"; onTriggered: channelListView.currentIndex = 7 }
-    Action { shortcut: "Alt+9"; onTriggered: channelListView.currentIndex = 8 }
-    Action { shortcut: "Alt+0"; onTriggered: channelListView.currentIndex = 9 }
+//    Action { shortcut: "Alt+Left"; onTriggered: channelListView.decrementCurrentIndex() }
+//    Action { shortcut: "Alt+Right"; onTriggered: channelListView.incrementCurrentIndex() }
+//    Action { shortcut: "Alt+1"; onTriggered: channelListView.currentIndex = 0 }
+//    Action { shortcut: "Alt+2"; onTriggered: channelListView.currentIndex = 1 }
+//    Action { shortcut: "Alt+3"; onTriggered: channelListView.currentIndex = 2 }
+//    Action { shortcut: "Alt+4"; onTriggered: channelListView.currentIndex = 3 }
+//    Action { shortcut: "Alt+5"; onTriggered: channelListView.currentIndex = 4 }
+//    Action { shortcut: "Alt+6"; onTriggered: channelListView.currentIndex = 5 }
+//    Action { shortcut: "Alt+7"; onTriggered: channelListView.currentIndex = 6 }
+//    Action { shortcut: "Alt+8"; onTriggered: channelListView.currentIndex = 7 }
+//    Action { shortcut: "Alt+9"; onTriggered: channelListView.currentIndex = 8 }
+//    Action { shortcut: "Alt+0"; onTriggered: channelListView.currentIndex = 9 }
 
-    Action { shortcut: "Page Up"; onTriggered: bufferContainer.scrollLines(-1) }
-    Action { shortcut: "Page Down"; onTriggered: bufferContainer.scrollLines(1) }
+//    Action { shortcut: "Page Up"; onTriggered: bufferContainer.scrollLines(-1) }
+//    Action { shortcut: "Page Down"; onTriggered: bufferContainer.scrollLines(1) }
 
     property int textMargin: 3
     SystemPalette { id: palette; colorGroup: SystemPalette.Active }
@@ -119,29 +120,30 @@ Rectangle {
         }
     }
 
-    ScrollBar {
-        id: scrollBar
-        anchors.top: titleContainer.bottom
-        anchors.bottom: parent.bottom
-        anchors.right: parent.right
-        width: 12
+//    ScrollBar {
+//        id: scrollBar
+//        anchors.top: titleContainer.bottom
+//        anchors.bottom: parent.bottom
+//        anchors.right: parent.right
+//        width: 12
 
-        orientation: Qt.Vertical
-        position: bufferContainer.currentVisibleBuffer.visibleArea.yPosition
-        pageSize: bufferContainer.currentVisibleBuffer.visibleArea.heightRatio
-    }
+//        orientation: Qt.Vertical
+//        position: bufferContainer.currentVisibleBuffer.visibleArea.yPosition
+//        pageSize: bufferContainer.currentVisibleBuffer.visibleArea.heightRatio
+//    }
 
     Rectangle {
         id: bufferContainer
 
         anchors.left: channelListContainer.right
-        anchors.right: scrollBar.left
+//        anchors.right: scrollBar.left
+        anchors.right: parent.right
         anchors.top: titleContainer.bottom
         anchors.bottom: parent.bottom
 
         color: 'black'
 
-        property variant bufferItems: []
+        property var bufferItems: []
         property variant currentVisibleBuffer: null
 
         function changeVisibleBuffer() {
