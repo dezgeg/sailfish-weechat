@@ -43,13 +43,17 @@ import QtQuick 2.0
 Item {
     id: scrollBar
 
+    // SailfishWeechat customizations
+    width: 12
+    property Item listView
+
     // The properties that define the scrollbar's state.
     // position and pageSize are in the range 0.0 - 1.0.  They are relative to the
     // height of the page, i.e. a pageSize of 0.5 means that you can see 50%
     // of the height of the view.
     // orientation can be either Qt.Vertical or Qt.Horizontal
-    property real position
-    property real pageSize
+    property real position: listView.currentVisibleBuffer.visibleArea.yPosition
+    property real pageSize: listView.currentVisibleBuffer.visibleArea.heightRatio
     property variant orientation : Qt.Vertical
 
     // A light, semi-transparent background

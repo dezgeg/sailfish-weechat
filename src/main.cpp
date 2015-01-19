@@ -30,8 +30,9 @@ int main(int argc, char** argv) {
 #ifdef SAILFISH
         view.setSource(SailfishApp::pathTo("qml/desktop/SailfishApp.qml"));
 #else
+        view.engine()->addImportPath("/home/tmtynkky/sailfish-weechat/qml/");
         view.engine()->addImportPath("/home/tmtynkky/sailfish-weechat/qml/desktop/");
-        view.setSource(QUrl::fromLocalFile("/home/tmtynkky/sailfish-weechat/qml/desktop/App.qml"));
+        view.setSource(QUrl::fromLocalFile("/home/tmtynkky/sailfish-weechat/qml/desktop/DesktopApp.qml"));
 #endif
         view.show();
 #if 0

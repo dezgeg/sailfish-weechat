@@ -1,0 +1,3 @@
+module SailfishWeechat
+StyledText 1.0 StyledText.qml
+ScrollBar 1.0 ScrollBar.qml
